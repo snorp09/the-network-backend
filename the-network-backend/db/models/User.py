@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, List
 from sqlalchemy.orm import Mapped, mapped_column
-from .core import Base
+from ..core import Base
 
 if(TYPE_CHECKING):
     from .Post import Post
