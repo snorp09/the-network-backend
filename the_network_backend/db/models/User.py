@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING, List
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from ..core import Base
 
 if(TYPE_CHECKING):
@@ -11,4 +11,7 @@ class User(Base):
     username: Mapped[str] = mapped_column()
     email: Mapped[str] = mapped_column()
     password: Mapped[str] = mapped_column()
-    posts: Mapped[List["Post"]] = mapped_column(back_populates="user")
+    posts: Mapped[List["Post"]] = relationship("Post", back_populates="user")
+    
+    def __repr__(self):
+        return f"Id: {self.id}, Username: {self.username}, Email: {self.email}"
