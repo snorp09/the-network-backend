@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING, List
+from sqlalchemy import func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from datetime import datetime
 from ..core import Base
 
 if(TYPE_CHECKING):
@@ -15,10 +17,11 @@ if(TYPE_CHECKING):
 class User(Base):
     __tablename__ = "users"
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    username: Mapped[str] = mapped_column()
-    email: Mapped[str] = mapped_column()
-    password: Mapped[str] = mapped_column()
+    username: Mapped[str] = mapped_column(nullable=False)
+    email: Mapped[str] = mapped_column(nullable=False, unique=True)
+    password: Mapped[str] = mapped_column(nullable=False)
     posts: Mapped[List["Post"]] = relationship("Post", back_populates="user")
+    created_at: Mapped[datetime] = mapped_column(default=func.now())
     
     # Repr method for the User model.
     # Returns a string with the ID, username, and email of the user.
