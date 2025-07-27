@@ -67,7 +67,48 @@ async def get_user_by_email(email: str) -> User:
         User: The user object.
     """
     async with SessionLocal() as sess:
-        user = (await sess.execute(select(User).where(User.email == email))).one_or_none()
+        user = (await sess.execute(select(User).where(User.email == email))).scalar_one_or_none()
         if(user is None):
             raise UserNotFoundException()
         return user
+
+async def login_user(email: str, password: str) -> User:
+    """
+    Logs in a user by verifying their email and password.
+
+    Parameters:
+        email (str): The email of the user.
+        password (str): The password of the user.
+
+    Returns:
+        User: The user object if login is successful.
+
+    Raises:
+        UserNotFoundException: If the user is not found or the password is incorrect.
+    """
+    user = await get_user_by_email(email)
+    
+    if not ph.verify(user.password, password):
+        raise UserNotFoundException("Invalid credentials")
+    
+    return user
+
+async def update_user_password(user: User, new_password: str) -> User:
+    """
+    Updates the password of a user in the database.
+
+    Parameters:
+        user (User): The user object to update.
+        new_password (str): The new password to set.
+
+    Returns:
+        User: The updated user object.
+    """
+    user.password = await hash_password(new_password)
+    
+    async with SessionLocal() as sess:
+        sess.add(user)
+        await sess.commit()
+        await sess.refresh(user)
+    
+    return user
