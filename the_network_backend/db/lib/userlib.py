@@ -9,28 +9,38 @@ from sqlalchemy import select
 
 ph = PasswordHasher() # Password hashing object
 
-# UserNotFoundException (Class)
-# Thrown when a user is not found in the database.
 class UserNotFoundException(Exception):
+    """
+    Thrown when a user is not found in the database.
+    """
     pass
 
-# hash_password -> None Method
-# Hashes the password using the PasswordHasher object
-# and returns the hashed password.
-# Parameters:
-#   passwd (str): The password to hash.
 async def hash_password(passwd: str):
+    """
+    Hashes the password using the PasswordHasher object
+    and returns the hashed password.
+
+    Parameters:
+        passwd (str): The password to hash.
+
+    Returns:
+        str: The hashed password.
+    """
     passwd = ph.hash(passwd)
     return passwd
 
-# create_user -> User Method
-# Creates a new user in the database, and returns the user object.
-# Parameters:
-#   username (str): The username of the user.
-#   password (str): The password of the user.
-#   email (str): The email of the user.
 async def create_user(username: str, password: str, email: str) -> User:
+    """
+    Creates a new user in the database, and returns the user object.
 
+    Parameters:
+        username (str): The username of the user.
+        password (str): The password of the user.
+        email (str): The email of the user.
+
+    Returns:
+        User: The created user object.
+    """
     new_user = User(
         username=username,
         password=await hash_password(password),
@@ -43,13 +53,19 @@ async def create_user(username: str, password: str, email: str) -> User:
         await sess.refresh(new_user)
     return new_user
 
-# get_user_by_id -> User Method
-# Gets a user from the database by their email.
-# Parameters:
-#   email (str): The email of the user.
-# Exceptions:
-#   UserNotFoundException: If the user is not found in the database.
 async def get_user_by_email(email: str) -> User:
+    """
+    Gets a user from the database by their email.
+
+    Parameters:
+        email (str): The email of the user.
+
+    Exceptions:
+        UserNotFoundException: If the user is not found in the database.
+
+    Returns:
+        User: The user object.
+    """
     async with SessionLocal() as sess:
         user = (await sess.execute(select(User).where(User.email == email))).one_or_none()
         if(user is None):
